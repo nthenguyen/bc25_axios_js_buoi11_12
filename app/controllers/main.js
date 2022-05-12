@@ -10,8 +10,8 @@ function getListTeacher() {
   services
     .fetchData()
     .then((res) => {
-      renderHTML(res.data);
       arr = res.data;
+      renderHTML(res.data);
     })
     .catch((err) => console.log(err))
     .finally(() => {});
