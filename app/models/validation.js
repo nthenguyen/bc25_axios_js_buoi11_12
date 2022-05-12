@@ -14,7 +14,7 @@ function Validation() {
   this.ktraTrung = (value, spanId, msg, arr) => {
     let result = false;
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i].innerHTML === value) {
+      if (arr[i].taiKhoan === value) {
         result = true;
         break;
       }
@@ -30,30 +30,20 @@ function Validation() {
     }
   };
 
-  this.kiemTraSo = function (value, spanId, message) {
-    let numbers = /^[0-9]+$/;
-    if (value.match(numbers)) {
-      //hop le
-      getEle(spanId).innerHTML = "";
-      getEle(spanId).style.display = "none";
+  this.kiemTraKiTu = function (value, divId, mess) {
+    var letter =
+      "^[a-zA-Z_ÀÁÂÃÈÉÊẾÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶ" +
+      "ẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợ" +
+      "ụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\\s]+$";
+    if (value.match(letter)) {
+      //Hop le
+      getEle(divId).innerHTML = "";
+      getEle(divId).style.display = "none";
       return true;
     }
-    getEle(spanId).innerHTML = message;
-    getEle(spanId).style.display = "block";
-    return false;
-  };
-
-  this.kiemTraKiTuDacBiet = function (value, spanId, message) {
-    let letters =
-      '^[^<>{}"/|;:.,~!?@#$%^=&*\\]\\\\()\\[¿§«»ω⊙¤°℃℉€¥£¢¡®©0-9_+]*$';
-    if (value.match(letters)) {
-      //hop le
-      getEle(spanId).innerHTML = "";
-      getEle(spanId).style.display = "none";
-      return true;
-    }
-    getEle(spanId).innerHTML = message;
-    getEle(spanId).style.display = "block";
+    // k hop le
+    getEle(divId).innerHTML = mess;
+    getEle(divId).style.display = "block";
     return false;
   };
 

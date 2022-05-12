@@ -4,16 +4,33 @@ function getEle(id) {
 
 var services = new Services();
 var validation = new Validation();
+var arr = [];
 
 function getListTeacher() {
-  let promise = services.fetchData();
-  promise
-    .then((res) => renderHTML(res.data))
+  services
+    .fetchData()
+    .then((res) => {
+      renderHTML(res.data);
+      arr = res.data;
+    })
     .catch((err) => console.log(err))
     .finally(() => {});
+  return arr;
 }
-
 getListTeacher();
+
+function trungTaiKhoan(taiKhoan) {
+  services
+    .getTeacherByTaiKhoan(taiKhoan)
+    .then((res) => {
+      let taiKhoan = getEle("TaiKhoan").value;
+      if (res.data.taiKhoan === taiKhoan) {
+        return false;
+      }
+      return true;
+    })
+    .catch((err) => console.log(err));
+}
 
 function renderHTML(data) {
   let content = "";
@@ -49,9 +66,10 @@ function editTeacher(id) {
     "Update Teacher";
   let footer = `<button class="btn btn-success" onclick="updateTeacher(${id})">Update</button>`;
   document.getElementsByClassName("modal-footer")[0].innerHTML = footer;
+  clearMessage();
 
-  let promise = services.getTeacherById(id);
-  promise
+  services
+    .getTeacherById(id)
     .then((res) => {
       let {
         taiKhoan,
@@ -93,27 +111,19 @@ function updateTeacher(id) {
       hoTen,
       matKhau,
       email,
-      loaiND,
+      loaiND === "GV" ? "GV" : alert("Phải chọn loại người dùng GV"),
       ngonNgu,
       moTa,
       hinhAnh
     );
-    if (teacher.loaiND === "GV") {
-      let promise = services.updateTeacher(id, teacher);
-      promise
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err))
-        .finally(() => {
-          getListTeacher();
-          document.getElementsByClassName("close")[0].click();
-          clearFields();
-          clearMessage();
-          getEle("TaiKhoan").disabled = false;
-        });
-    } else {
-      alert("Phải chọn loại người dùng GV");
-      return false;
-    }
+    services
+      .updateTeacher(id, teacher)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err))
+      .finally(() => {
+        getListTeacher();
+        document.getElementsByClassName("close")[0].click();
+      });
   }
 }
 
@@ -121,6 +131,9 @@ getEle("btnThemNguoiDung").addEventListener("click", () => {
   document.getElementsByClassName("modal-title")[0].innerHTML = "Add Teacher";
   let footer = `<button class="btn btn-success" onclick="addTeacher()">Add</button>`;
   document.getElementsByClassName("modal-footer")[0].innerHTML = footer;
+  getEle("TaiKhoan").disabled = false;
+  clearFields();
+  clearMessage();
 });
 
 function addTeacher() {
@@ -145,19 +158,14 @@ function addTeacher() {
       moTa,
       hinhAnh
     );
-    if (teacher.loaiND === "GV") {
-      let promise = services.addTeacher(teacher);
-      promise
-        .then((res) => console.log(res))
-        .catch((err) => console.log(err))
-        .finally(() => {
-          getListTeacher();
-          document.getElementsByClassName("close")[0].click();
-        });
-    } else {
-      alert("Phải chọn loại người dùng GV");
-      return false;
-    }
+    services
+      .addTeacher(teacher)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err))
+      .finally(() => {
+        getListTeacher();
+        document.getElementsByClassName("close")[0].click();
+      });
   }
 }
 
@@ -170,7 +178,6 @@ function checkValid() {
   let loaiND = getEle("loaiNguoiDung").value;
   let moTa = getEle("MoTa").value;
   let hinhAnh = getEle("HinhAnh").value;
-  let arr = [];
   let isValid = true;
   /* Tai khoan */
   isValid &=
@@ -184,11 +191,10 @@ function checkValid() {
   /* Ho ten */
   isValid &=
     validation.ktraRong(hoTen, "tbHoTen", "Họ tên không được để trống") &&
-    !validation.kiemTraSo(hoTen, "tbHoTen", "Họ tên không được chứa số") &&
-    !validation.kiemTraKiTuDacBiet(
+    validation.kiemTraKiTu(
       hoTen,
       "tbHoTen",
-      "Họ tên không được chứa kí tự đặc biệt"
+      "Họ tên không có kí tự đặc biệt hoặc số"
     );
 
   /* Mat khau */
